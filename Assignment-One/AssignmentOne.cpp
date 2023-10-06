@@ -19,7 +19,7 @@ void push(Node*& head, char ch) {
     head = newNode;
 }
 
-// Custom stack implementation using linked list
+// Stack implementation using linked list
 template <typename T>
 class MyStack {
 private:
@@ -59,7 +59,7 @@ public:
     }
 };
 
-// Custom queue implementation using linked list
+// Queue implementation using linked list
 template <typename T>
 class MyQueue {
 private:
@@ -68,42 +68,42 @@ private:
         Node* next;
         Node(const T& item) : data(item), next(nullptr) {}
     };
-    Node* front;
-    Node* rear;
+    Node* head;
+    Node* tail;
 
 public:
-    MyQueue() : front(nullptr), rear(nullptr) {}
+    MyQueue() : head(nullptr), tail(nullptr) {}
 
     void enqueue(const T& item) {
         Node* newNode = new Node(item);
-        if (rear) {
-            rear->next = newNode;
+        if (tail) {
+            tail->next = newNode;
         } else {
-            front = newNode;
+            head = newNode;
         }
-        rear = newNode;
+        tail = newNode;
     }
 
     void dequeue() {
-        if (front) {
-            Node* temp = front;
-            front = front->next;
+        if (head) {
+            Node* temp = head;
+            head = head->next;
             delete temp;
-            if (!front) {
-                rear = nullptr;
+            if (!head) {
+                tail = nullptr;
             }
         }
     }
 
-    T& frontElement() const {
-        if (front) {
-            return front->data;
+    T& headElement() const {
+        if (head) {
+            return head->data;
         }
         throw std::out_of_range("Queue is empty");
     }
 
     bool empty() const {
-        return front == nullptr;
+        return head == nullptr;
     }
 };
 
@@ -137,7 +137,7 @@ int main() {
             push(lines[lineCount], ch); // Push each character onto the linked list
         }
 
-        // Compare nodes while popping from a stack and queue
+        // Compare nodes while popping from a stack and queue using template
         MyStack<char> charStack;
         MyQueue<char> charQueue;
 
@@ -152,9 +152,9 @@ int main() {
 
         while (!charStack.empty() && !charQueue.empty()) {
             char stackTop = charStack.peek();
-            char queueFront = charQueue.frontElement();
+            char queuehead = charQueue.headElement();
 
-            if (stackTop != queueFront) {
+            if (stackTop != queuehead) {
                 isPalindrome = false;
                 break; // Not a palindrome, no need to continue checking
             }
@@ -163,12 +163,13 @@ int main() {
             charQueue.dequeue();
         }
 
+        // Prints out which line in magicitems is a palindrome
         if (isPalindrome) {
             palindromeCount++;
             std::cout << "Line " << lineCount + 1 << " is a palindrome." << std::endl;
         }
 
-        // Free memory used by nodes
+        // Free memory used by nodes, sourced from StackOverflow
         while (lines[lineCount] != nullptr) {
             Node* temp = lines[lineCount];
             lines[lineCount] = lines[lineCount]->next;
