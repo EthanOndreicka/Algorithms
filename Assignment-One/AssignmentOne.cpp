@@ -137,7 +137,7 @@ int main() {
             push(lines[lineCount], ch); // Push each character onto the linked list
         }
 
-        // Compare nodes while popping from a custom stack and a custom queue
+        // Compare nodes while popping from a stack and queue
         MyStack<char> charStack;
         MyQueue<char> charQueue;
 
