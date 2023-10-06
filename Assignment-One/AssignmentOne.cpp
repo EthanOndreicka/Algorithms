@@ -1,10 +1,6 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <algorithm>
-#include <cctype>
-#include <ctime>
-#include <cstdlib>
 
 // Constructs the node
 struct Node {
@@ -39,34 +35,34 @@ private:
         Node* next;
         Node(const T& item) : data(item), next(nullptr) {}
     };
-    Node* top;
+    Node* head;
 
 public:
-    MyStack() : top(nullptr) {}
+    MyStack() : head(nullptr) {}
 
     void push(const T& item) {
         Node* newNode = new Node(item);
-        newNode->next = top;
-        top = newNode;
+        newNode->next = head;
+        head = newNode;
     }
 
     void pop() {
-        if (top) {
-            Node* temp = top;
-            top = top->next;
+        if (head) {
+            Node* temp = head;
+            head = head->next;
             delete temp;
         }
     }
 
     T& peek() const {
-        if (top) {
-            return top->data;
+        if (head) {
+            return head->data;
         }
         throw std::out_of_range("Stack is empty");
     }
 
     bool empty() const {
-        return top == nullptr;
+        return head == nullptr;
     }
 };
 
@@ -197,16 +193,44 @@ int main() {
 
     inputFile.close();
 
-    knuthShuffle(shuffled_lines, lineCount);
-
-    
-
     std::cout << "Total number of palindromes: " << palindromeCount << std::endl;
+    // Added a line to keep things organized/seperate
+    std::cout << "=====================================" << std::endl;
 
-    // Output the shuffled lines
-    for (int i = 0; i < lineCount; i++) {
-        std::cout << shuffled_lines[i] << std::endl;
+    knuthShuffle(shuffled_lines, lineCount);
+   // std::cout << "Shuffled Lines: " << std::endl;
+     // Output the shuffled lines
+    //for (int i = 0; i < lineCount; i++) {
+     //   std::cout << shuffled_lines[i] << std::endl;
+   // }
+   // std::cout << "=====================================" << std::endl;
+
+    int selectionSortCount = 0;
+
+    // Selection sort
+    for (int i = 0; i < lineCount - 1; i++) {
+        int smallestLine = i;
+        for (int j = i + 1; j < lineCount; j++) {
+            // Counts the amount of comparisons
+            selectionSortCount ++;
+            if (shuffled_lines[j] < shuffled_lines[smallestLine]) {
+                smallestLine = j;
+            }
+        }
+        if (smallestLine != i) {
+            std::swap(shuffled_lines[i], shuffled_lines[smallestLine]);
+        }
     }
+
+    // Output the sorted lines
+    //std::cout << "Using Selection Sort:" << std::endl;
+    //for (int i = 0; i < lineCount; i++) {
+    //    std::cout << shuffled_lines[i] << std::endl;
+    //}
+    std::cout << "Total number of sorts using Selection Sort: " << selectionSortCount << std::endl;
+    std::cout << "=====================================" << std::endl;
+
+
 
     return 0;
 }
