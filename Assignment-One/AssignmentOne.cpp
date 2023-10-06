@@ -181,7 +181,7 @@ int main() {
             std::cout << "Line " << lineCount + 1 << " is a palindrome." << std::endl;
         }
 
-        // Free memory used by nodes, sourced from StackOverflow
+        // Free memory used by nodes, sourced from StackOverflow (Took me forever to figure out)
         while (lines[lineCount] != nullptr) {
             Node* temp = lines[lineCount];
             lines[lineCount] = lines[lineCount]->next;
@@ -194,7 +194,7 @@ int main() {
     inputFile.close();
 
     std::cout << "Total number of palindromes: " << palindromeCount << std::endl;
-    // Added a line to keep things organized/seperate
+    // Added lines to keep things organized/seperate
     std::cout << "=====================================" << std::endl;
 
     knuthShuffle(shuffled_lines, lineCount);
