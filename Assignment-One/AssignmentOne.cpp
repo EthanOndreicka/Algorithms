@@ -3,6 +3,8 @@
 #include <string>
 #include <algorithm>
 #include <cctype>
+#include <ctime>
+#include <cstdlib>
 
 // Constructs the node
 struct Node {
@@ -17,6 +19,15 @@ void push(Node*& head, char ch) {
     Node* newNode = new Node(ch);
     newNode->next = head;
     head = newNode;
+}
+
+// Function to perform Knuth shuffle on an array
+template <typename T>
+void knuthShuffle(T* arr, int size) {
+    for (int i = size - 1; i > 0; i--) {
+        int j = std::rand() % (i + 1); // Generate a random index from 0 to i (inclusive)
+        std::swap(arr[i], arr[j]);
+    }
 }
 
 // Stack implementation using linked list
@@ -117,6 +128,7 @@ int main() {
 
     const int maxLines = 666;
     Node* lines[maxLines]; // Create an array of pointers to nodes
+    std::string shuffled_lines[maxLines];
 
     int lineCount = 0;
     int palindromeCount = 0;
@@ -127,6 +139,8 @@ int main() {
         std::transform(line.begin(), line.end(), line.begin(), ::tolower);
         line.erase(std::remove_if(line.begin(), line.end(), ::isspace), line.end());
 
+        shuffled_lines[lineCount] = line; // Store the line in the array
+
         // Initialize the linked list to nullptr
         lines[lineCount] = nullptr;
 
@@ -136,6 +150,8 @@ int main() {
             char ch = line[i];
             push(lines[lineCount], ch); // Push each character onto the linked list
         }
+
+        std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
         // Compare nodes while popping from a stack and queue using template
         MyStack<char> charStack;
@@ -181,7 +197,16 @@ int main() {
 
     inputFile.close();
 
+    knuthShuffle(shuffled_lines, lineCount);
+
+    
+
     std::cout << "Total number of palindromes: " << palindromeCount << std::endl;
+
+    // Output the shuffled lines
+    for (int i = 0; i < lineCount; i++) {
+        std::cout << shuffled_lines[i] << std::endl;
+    }
 
     return 0;
 }
