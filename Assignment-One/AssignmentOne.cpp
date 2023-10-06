@@ -230,6 +230,29 @@ int main() {
     std::cout << "Total number of sorts using Selection Sort: " << selectionSortCount << std::endl;
     std::cout << "=====================================" << std::endl;
 
+    // reshuffle the array
+    knuthShuffle(shuffled_lines, lineCount);
+
+    // Insertion sort
+    int insertionSortCount = 0;
+    for (int i = 1; i < lineCount; i++) {
+        std::string valueToInsert = shuffled_lines[i];
+        int j = i - 1;
+
+        while (j >= 0 && shuffled_lines[j] > valueToInsert) {
+            shuffled_lines[j + 1] = shuffled_lines[j];
+            j = j - 1;
+            insertionSortCount++;
+        }
+        shuffled_lines[j + 1] = valueToInsert;
+    }
+    std::cout << "Total number of sorts using Insertion Sort: " << insertionSortCount << std::endl;
+    std::cout << "=====================================" << std::endl;
+
+    // reshuffle the array
+    knuthShuffle(shuffled_lines, lineCount);
+
+    
 
 
     return 0;
