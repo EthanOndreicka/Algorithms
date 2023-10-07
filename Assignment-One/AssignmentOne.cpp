@@ -10,6 +10,63 @@ struct Node {
     Node(char ch) : data(ch), next(nullptr) {}
 };
 
+// Creates the merge function
+void merge(std::string arr[], int start, int middle, int end, int& comparisonCount) {
+    int leftSize = middle - start + 1;
+    int rightSize = end - middle;
+
+    // Create temporary arrays for left and right
+    std::string left[leftSize];
+    std::string right[rightSize];
+
+    for (int i = 0; i < leftSize; i++) {
+        left[i] = arr[start + i];
+    }
+    for (int j = 0; j < rightSize; j++) {
+        right[j] = arr[middle + 1 + j];
+    }
+
+    // Merge the two halves back into the original array
+    int i = 0, j = 0, k = start;
+    while (i < leftSize && j < rightSize) {
+        comparisonCount++;
+        if (left[i] <= right[j]) {
+            arr[k] = left[i];
+            i++;
+        } else {
+            arr[k] = right[j];
+            j++;
+        }
+        k++;
+    }
+
+    // Copy remaining elements of left[] and right[] if any
+    while (i < leftSize) {
+        arr[k] = left[i];
+        i++;
+        k++;
+    }
+    while (j < rightSize) {
+        arr[k] = right[j];
+        j++;
+        k++;
+    }
+}
+
+// Merge sort function
+void mergeSort(std::string arr[], int start, int end, int& comparisonCount) {
+    if (start < end) {
+        int middle = (start + end) / 2;
+
+        // Recursively sort the left and right halves
+        mergeSort(arr, start, middle, comparisonCount);
+        mergeSort(arr, middle + 1, end, comparisonCount);
+
+        // Merge the sorted halves
+        merge(arr, start, middle, end, comparisonCount);
+    }
+}
+
 // Function to push a node onto a linked list
 void push(Node*& head, char ch) {
     Node* newNode = new Node(ch);
@@ -193,6 +250,7 @@ int main() {
 
     inputFile.close();
 
+    std::cout << "=====================================" << std::endl;
     std::cout << "Total number of palindromes: " << palindromeCount << std::endl;
     // Added lines to keep things organized/seperate
     std::cout << "=====================================" << std::endl;
@@ -249,11 +307,24 @@ int main() {
     std::cout << "Total number of sorts using Insertion Sort: " << insertionSortCount << std::endl;
     std::cout << "=====================================" << std::endl;
 
-    // reshuffle the array
+    // reshuffle the array againnnnnnnnnn
     knuthShuffle(shuffled_lines, lineCount);
 
-    
+    int mergeSortComparisonCount = 0;
+    mergeSort(shuffled_lines, 0, lineCount - 1, mergeSortComparisonCount);
 
+    // Output the sorted lines
+   // std::cout << "Using Merge Sort:" << std::endl;
+   // for (int i = 0; i < lineCount; i++) {
+    //    std::cout << shuffled_lines[i] << std::endl;
+   // }
+
+    std::cout << "Total number of sorts using Merge Sort: " << mergeSortComparisonCount << std::endl;
+    std::cout << "=====================================" << std::endl;
+
+    // reshuffle the array againnnnnnnnnnnnnnnnnnnnnnnnnnnn
+    // Personally I think we should've only done Mon
+    knuthShuffle(shuffled_lines, lineCount);
 
     return 0;
 }
