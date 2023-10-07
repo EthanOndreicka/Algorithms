@@ -10,6 +10,40 @@ struct Node {
     Node(char ch) : data(ch), next(nullptr) {}
 };
 
+// Split the array into two subarrays and return the pivot value
+int split(std::string arr[], int low, int high, int& comparisonCount) {
+    // Choose the pivot as the middle element
+    int middle = low + (high - low) / 2;
+    std::string pivot = arr[middle];
+
+    // Move the pivot element to the end
+    std::swap(arr[middle], arr[high]);
+
+    int i = low - 1; // Index of the smaller element
+
+    for (int j = low; j < high; j++) {
+        comparisonCount++; // Count each comparison
+        if (arr[j] <= pivot) {
+            i++;
+            std::swap(arr[i], arr[j]);
+        }
+    }
+
+    std::swap(arr[i + 1], arr[high]);
+    return i + 1;
+}
+
+// Quick sort function with comparison counter
+void quickSort(std::string arr[], int low, int high, int& comparisonCount) {
+    if (low < high) {
+        int pivotIndex = split(arr, low, high, comparisonCount);
+
+        // Recursively sort the subarrays
+        quickSort(arr, low, pivotIndex - 1, comparisonCount);
+        quickSort(arr, pivotIndex + 1, high, comparisonCount);
+    }
+}
+
 // Creates the merge function
 void merge(std::string arr[], int start, int middle, int end, int& comparisonCount) {
     int leftSize = middle - start + 1;
@@ -323,8 +357,20 @@ int main() {
     std::cout << "=====================================" << std::endl;
 
     // reshuffle the array againnnnnnnnnnnnnnnnnnnnnnnnnnnn
-    // Personally I think we should've only done Mon
+    // Personally I think we should've only done Monkey sort
     knuthShuffle(shuffled_lines, lineCount);
+
+    int quickSortComparisonCount = 0;
+    // Call quickSort to sort the array and count comparisons
+    quickSort(shuffled_lines, 0, lineCount - 1, quickSortComparisonCount);
+
+    // Output the sorted lines
+    //std::cout << "Using Quick Sort:" << std::endl;
+    //for (int i = 0; i < lineCount; i++) {
+    //    std::cout << shuffled_lines[i] << std::endl;
+    //}
+    std::cout << "Total number of comparisons using Quick Sort: " << quickSortComparisonCount << std::endl;
+    std::cout << "=====================================" << std::endl;
 
     return 0;
 }
