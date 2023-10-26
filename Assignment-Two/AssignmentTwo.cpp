@@ -20,12 +20,26 @@ int main() {
          // Changes each line to lowercase and removes whitespace
         std::transform(line.begin(), line.end(), line.begin(), ::tolower);
         line.erase(std::remove_if(line.begin(), line.end(), ::isspace), line.end());
-        
+
         lines[lineCount] = line; // Store each line in the array
         lineCount++;
     }
 
     inputFile.close();
+
+    // Insertion sort
+    int insertionSortCount = 0;
+    for (int i = 1; i < lineCount; i++) {
+        std::string valueToInsert = lines[i];
+        int j = i - 1;
+
+        while (j >= 0 && lines[j] > valueToInsert) {
+            lines[j + 1] = lines[j];
+            j = j - 1;
+            insertionSortCount++;
+        }
+        lines[j + 1] = valueToInsert;
+    }
 
     // Print the lines stored in the array
     for (int i = 0; i < lineCount; i++) {
