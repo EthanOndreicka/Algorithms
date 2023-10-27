@@ -6,6 +6,19 @@
 #include <cctype>
 #include <cstddef>
 
+// Insertion Sort Function
+void insertionSort(std::string lines[], int lineCount) {
+    for (int i = 1; i < lineCount; i++) {
+        std::string valueToInsert = lines[i];
+        int j = i - 1;
+        while (j >= 0 && lines[j] > valueToInsert) {
+            lines[j + 1] = lines[j];
+            j = j - 1;
+        }
+        lines[j + 1] = valueToInsert;
+    }
+}
+
 // Linear Search Function
 bool linearSearch(const std::string target, const std::string lines[], int lineCount, int& comparisons) {
     comparisons = 0; // counter for comparisons
@@ -18,8 +31,27 @@ bool linearSearch(const std::string target, const std::string lines[], int lineC
     return false; // Item not found
 }
 
+// Binary Search Function
+bool binarySearch(const std::string target, const std::string lines[], int lineCount, int& comparisons) {
+    comparisons = 0; // comparisons counter
+    int leftValue = 0;
+    int rightValue = lineCount - 1;
+    while (leftValue <= rightValue) {
+        comparisons++; // count for each iteration
+        int middleValue = leftValue + (rightValue - leftValue) / 2;
+        if (lines[middleValue] == target) {
+            return true; // Item found
+        }
+        if (lines[middleValue] < target) {
+            leftValue = middleValue + 1;
+        } else {
+            rightValue = middleValue - 1;
+        }
+    }
+    return false; // Item not found
+}
 
-// Choose random item function partially from ChatGPT
+// Random item chooser partially from ChatGPT
 void chooseRandomItems(const std::string lines[], int lineCount) {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
@@ -31,35 +63,37 @@ void chooseRandomItems(const std::string lines[], int lineCount) {
         randomItems[i] = lines[randomIndex];
     }
 
-    for (int i = 1; i < numItemsToChoose; i++) {
-        std::string valueToInsert = randomItems[i];
-        int j = i - 1;
+    insertionSort(randomItems, numItemsToChoose); // sort the random items
 
-        while (j >= 0 && randomItems[j] > valueToInsert) {
-            randomItems[j + 1] = randomItems[j];
-            j = j - 1;
-        }
-        randomItems[j + 1] = valueToInsert;
-    }
-
-    int totalComparisons = 0; // total comparisons made for all 42 searches
+    int totalLinearComparisons = 0; // comparisons made with linear search
+    int totalBinaryComparisons = 0; // comparisons made with binary search
 
     std::cout << "===============================================" << std::endl;
-    std::cout << "   Linear Search    " << std::endl;
+    std::cout << "Linear and Binary Search" << std::endl;
     std::cout << "===============================================" << std::endl;
     for (int i = 0; i < numItemsToChoose; i++) {
         std::cout << "Searching for: " << randomItems[i] << std::endl;
-        int comparisons = 0;
-        bool found = linearSearch(randomItems[i], lines, lineCount, comparisons);
-        totalComparisons += comparisons;
-        std::cout << "Comparisons: " << comparisons << std::endl;
+
+        int linearComparisons = 0;
+        bool linearFound = linearSearch(randomItems[i], lines, lineCount, linearComparisons);
+        totalLinearComparisons += linearComparisons;
+
+        int binaryComparisons = 0;
+        bool binaryFound = binarySearch(randomItems[i], lines, lineCount, binaryComparisons);
+        totalBinaryComparisons += binaryComparisons;
+
+        std::cout << "Linear Search Comparisons: " << linearComparisons << std::endl;
+        std::cout << "Binary Search Comparisons: " << binaryComparisons << std::endl;
+        std::cout << "-------" << std::endl;
     }
 
-    // get average comparisons
+    // Calculate and print the average comparisons with two decimal places
+    double averageLinearComparisons = static_cast<double>(totalLinearComparisons) / numItemsToChoose;
+    double averageBinaryComparisons = static_cast<double>(totalBinaryComparisons) / numItemsToChoose;
     std::cout << "===============================================" << std::endl;
-    double averageComparisons = static_cast<double>(totalComparisons) / numItemsToChoose;
-    // outputs and sets to 2 decimal places
-    std::cout << "Average Comparisons for Linear Search : " << std::fixed << std::setprecision(2) << averageComparisons << std::endl;
+    std::cout << "Average Linear Search Comparisons: " << std::fixed << std::setprecision(2) << averageLinearComparisons << std::endl;
+    std::cout << "-----------------------------------------------" << std::endl;
+    std::cout << "Average Binary Search Comparisons: " << std::fixed << std::setprecision(2) << averageBinaryComparisons << std::endl;
     std::cout << "===============================================" << std::endl;
 }
 
