@@ -1,0 +1,423 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% CMPT xxx
+% Some Semester
+% Lab/Assignment/Project X
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Short Sectioned Assignment
+% LaTeX Template
+% Version 1.0 (5/5/12)
+%
+% This template has been downloaded from: http://www.LaTeXTemplates.com
+% Original author: % Frits Wenneker (http://www.howtotex.com)
+% License: CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+% Modified by Alan G. Labouseur  - alan@labouseur.com
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[letterpaper, 10pt,DIV=13]{scrartcl} 
+
+\usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
+\usepackage[english]{babel} % English language/hyphenation
+\usepackage{amsmath,amsfonts,amsthm,xfrac} % Math packages
+\usepackage{sectsty} % Allows customizing section commands
+\usepackage{graphicx}
+\usepackage[lined,linesnumbered,commentsnumbered]{algorithm2e}
+\usepackage{listings}
+\usepackage{parskip}
+\usepackage{lastpage}
+\usepackage{tabularx}
+
+\allsectionsfont{\normalfont\scshape} % Make all section titles in default font and small caps.
+
+\usepackage{fancyhdr} % Custom headers and footers
+\pagestyle{fancyplain} % Makes all pages in the document conform to the custom headers and footers
+
+\fancyhead{} % No page header - if you want one, create it in the same way as the footers below
+\fancyfoot[L]{} % Empty left footer
+\fancyfoot[C]{} % Empty center footer
+\fancyfoot[R]{page \thepage\ of \pageref{LastPage}} % Page numbering for right footer
+
+\renewcommand{\headrulewidth}{0pt} % Remove header underlines
+\renewcommand{\footrulewidth}{0pt} % Remove footer underlines
+\setlength{\headheight}{13.6pt} % Customize the height of the header
+
+\numberwithin{equation}{section} % Number equations within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{figure}{section} % Number figures within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{table}{section} % Number tables within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+
+\setlength\parindent{0pt} % Removes all indentation from paragraphs.
+
+\binoppenalty=3000
+\relpenalty=3000
+
+\usepackage{xcolor}
+
+\definecolor{codeblue}{rgb}{0,0.4,0.9}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codeblue},
+    keywordstyle=\color{red},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=3
+}
+
+\lstset{style=mystyle}
+
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION
+%----------------------------------------------------------------------------------------
+
+\newcommand{\horrule}[1]{\rule{\linewidth}{#1}} % Create horizontal rule command with 1 argument of height
+
+\title{	
+   \normalfont \normalsize 
+   \textsc{CMPT 435 - Fall 2023 - Dr. Labouseur} \\[10pt] % Header stuff.
+   \horrule{0.5pt} \\[0.25cm] 	% Top horizontal rule
+   \huge Assignment One  \\     	    % Assignment title
+   \horrule{0.5pt} \\[0.25cm] 	% Bottom horizontal rule
+}
+
+\author{Ethan Ondreicka \\ \normalsize Ethan.Ondreicka1@Marist.edu}
+
+\date{\normalsize\today} 	% Today's date.
+
+\begin{document}
+\maketitle % Print the title
+
+%----------------------------------------------------------------------------------------
+%   start Part One
+%----------------------------------------------------------------------------------------
+\section{Part One: Node initialization}
+
+\subsection{Developing the Node Class}
+
+\begin{lstlisting}[language=c++, caption= Construction of the Node Class]
+// Constructs the node
+struct Node {
+    char data;
+    Node* next;
+
+    Node(char ch) : data(ch), next(nullptr) {}
+};
+\end{lstlisting}
+\section{Part Two: Palindromes}
+\subsection{Creating Stacks}
+\begin{lstlisting}[language=c++, caption= Creation of the Stack class]
+// Stack implementation using linked list
+template <typename T>
+class MyStack {
+private:
+    struct Node {
+        T data;
+        Node* next;
+        Node(const T& item) : data(item), next(nullptr) {}
+    };
+    Node* head;
+
+public:
+    MyStack() : head(nullptr) {}
+
+    void push(const T& item) {
+        Node* newNode = new Node(item);
+        newNode->next = head;
+        head = newNode;
+    }
+
+    void pop() {
+        if (head) {
+            Node* temp = head;
+            head = head->next;
+            delete temp;
+        }
+    }
+
+    T& peek() const {
+        if (head) {
+            return head->data;
+        }
+        throw std::out_of_range("Stack is empty");
+    }
+
+    bool empty() const {
+        return head == nullptr;
+    }
+};
+\end{lstlisting}
+Through the class MyStack, I was able to create a template for creating a stack. Lines 15 - 19, 
+each character in the string of text gets put into the stack. And in lines 21 - 27, each character is removed from the stack.
+
+\subsection{Creating Queues}
+\begin{lstlisting}[language=c++, caption= Creation of the Queue Class]
+// Queue implementation using linked list
+template <typename T>
+class MyQueue {
+private:
+    struct Node {
+        T data;
+        Node* next;
+        Node(const T& item) : data(item), next(nullptr) {}
+    };
+    Node* head;
+    Node* tail;
+
+public:
+    MyQueue() : head(nullptr), tail(nullptr) {}
+
+    void enqueue(const T& item) {
+        Node* newNode = new Node(item);
+        if (tail) {
+            tail->next = newNode;
+        } else {
+            head = newNode;
+        }
+        tail = newNode;
+    }
+
+    void dequeue() {
+        if (head) {
+            Node* temp = head;
+            head = head->next;
+            delete temp;
+            if (!head) {
+                tail = nullptr;
+            }
+        }
+    }
+
+    T& headElement() const {
+        if (head) {
+            return head->data;
+        }
+        throw std::out_of_range("Queue is empty");
+    }
+
+    bool empty() const {
+        return head == nullptr;
+    }
+};
+    
+\end{lstlisting}
+With the creation of the MyQueue template, I was able to put my entire array into a queue and push and pop each character of every string.
+
+\subsection{Comparing the Stacks and Queues}
+\begin{lstlisting}[language=c++, caption= Comparing each character to see if it is a palendrome]
+bool isPalindrome = true;
+
+        while (currentNode != nullptr) {
+            charStack.push(currentNode->data); // Push onto the stack
+            charQueue.enqueue(currentNode->data); // Enqueue into the queue
+            currentNode = currentNode->next;
+        }
+
+        while (!charStack.empty() && !charQueue.empty()) {
+            char stackTop = charStack.peek();
+            char queuehead = charQueue.headElement();
+
+            if (stackTop != queuehead) {
+                isPalindrome = false;
+                break; // Not a palindrome, no need to continue checking
+            }
+
+            charStack.pop();
+            charQueue.dequeue();
+        }
+\end{lstlisting}
+
+Through these while loops in my main function, I am able to compare the heads of both the stack and the queue. Lines 4-5 in the first while loop push each character node onto the stack and queue respectively. In the second while loop, if neither the stack or queue is empty, it will initialize the variables on lines 10-11 and in the for loop below it will compare character by character.
+
+\pagebreak
+
+\section{Part Three: Sorting Algorithms}
+\subsection{Selection Sort}
+\begin{lstlisting}[language=c++, caption= Selection Sort Algorithm]
+    int selectionSortCount = 0;
+
+    // Selection sort
+    for (int i = 0; i < lineCount - 1; i++) {
+        int smallestLine = i;
+        for (int j = i + 1; j < lineCount; j++) {
+            // Counts the amount of comparisons
+            selectionSortCount ++;
+            if (shuffled_lines[j] < shuffled_lines[smallestLine]) {
+                smallestLine = j;
+            }
+        }
+        if (smallestLine != i) {
+            std::swap(shuffled_lines[i], shuffled_lines[smallestLine]);
+        }
+    }
+\end{lstlisting}
+The Selection Sort algorithm repeatedly goes through the sorted array over and over again from the beginning until every item in the array is sorted.
+
+Selection sort has an asymptotic running time of $O(n^2)$ because no matter what, it will continue to go through every element in the array once, whether it is sorted or unsorted already.
+\subsection{Insertion Sort}
+\begin{lstlisting}[language=c++, caption= Insertion Sort Algorithm]
+    // Insertion sort
+    int insertionSortCount = 0;
+    for (int i = 1; i < lineCount; i++) {
+        std::string valueToInsert = shuffled_lines[i];
+        int j = i - 1;
+
+        while (j >= 0 && shuffled_lines[j] > valueToInsert) {
+            shuffled_lines[j + 1] = shuffled_lines[j];
+            j = j - 1;
+            insertionSortCount++;
+        }
+        shuffled_lines[j + 1] = valueToInsert;
+    }
+\end{lstlisting}
+The Insertion Sort algorithm works by iteratively selecting elements from the unsorted portion of the array and inserting them into their correct positions in the sorted portion. The while loop starting on line 7 shifts elements in the sorted portion of the array to the right until the correct position for "valueToInsert" is found.
+
+Insertion Sort has an asymptotic running time of  $O(n^2)$, because it goes through a list one element at a time and repeats until all items are sorted.
+\pagebreak
+\subsection{Merge Sort}
+\begin{lstlisting}[language=c++, caption= Merge Function]
+    // Creates the merge function
+void merge(std::string arr[], int start, int middle, int end, int& comparisonCount) {
+    int leftSize = middle - start + 1;
+    int rightSize = end - middle;
+
+    // Create temporary arrays for left and right
+    std::string left[leftSize];
+    std::string right[rightSize];
+
+    for (int i = 0; i < leftSize; i++) {
+        left[i] = arr[start + i];
+    }
+    for (int j = 0; j < rightSize; j++) {
+        right[j] = arr[middle + 1 + j];
+    }
+
+    // Merge the two halves back into the original array
+    int i = 0, j = 0, k = start;
+    while (i < leftSize && j < rightSize) {
+        comparisonCount++;
+        if (left[i] <= right[j]) {
+            arr[k] = left[i];
+            i++;
+        } else {
+            arr[k] = right[j];
+            j++;
+        }
+        k++;
+    }
+
+    // Copy remaining elements of left[] and right[] if any
+    while (i < leftSize) {
+        arr[k] = left[i];
+        i++;
+        k++;
+    }
+    while (j < rightSize) {
+        arr[k] = right[j];
+        j++;
+        k++;
+    }
+}
+\end{lstlisting}
+\pagebreak
+\begin{lstlisting}[language=c++, caption= Merge Sort Algorithm]
+    // Merge sort function
+void mergeSort(std::string arr[], int start, int end, int& comparisonCount) {
+    if (start < end) {
+        int middle = (start + end) / 2;
+
+        // Recursively sort the left and right halves
+        mergeSort(arr, start, middle, comparisonCount);
+        mergeSort(arr, middle + 1, end, comparisonCount);
+
+        // Merge the sorted halves
+        merge(arr, start, middle, end, comparisonCount);
+    }
+}
+\end{lstlisting}
+The Merge Sort algorithm is split into two different functions, one for splitting the array, and the other for merging. This is called "dividing and conquering", as it takes one big problem and makes it into a bunch of smaller problems that are then much easier to solve. The first function splits the shuffled array in half into two temporary arrays. The second function merges the arrays back together again comparing the values in each array to determine where they fit.
+
+Merge Sort has an asymptotic running time of $O(n - nlog_2n$), this is because it splits the inital array in half into smaller problems, making it easier to produce a fully sorted list in less time.
+\pagebreak
+\subsection{Quick Sort}
+\begin{lstlisting}[language=c++, caption= Splitting the Arrays]
+    // Split the array into two subarrays and return the pivot value
+int split(std::string arr[], int low, int high, int& comparisonCount) {
+    // Choose the pivot as the middle element
+    int middle = low + (high - low) / 2;
+    std::string pivot = arr[middle];
+
+    // Move the pivot element to the end
+    std::swap(arr[middle], arr[high]);
+
+    int i = low - 1; // Index of the smaller element
+
+    for (int j = low; j < high; j++) {
+        comparisonCount++; // Count each comparison
+        if (arr[j] <= pivot) {
+            i++;
+            std::swap(arr[i], arr[j]);
+        }
+    }
+
+    std::swap(arr[i + 1], arr[high]);
+    return i + 1;
+}
+\end{lstlisting}
+\begin{lstlisting}[language=c++, caption= Quick Sort Algorithm]
+    // Quick sort function with comparison counter
+void quickSort(std::string arr[], int low, int high, int& comparisonCount) {
+    if (low < high) {
+        int pivotIndex = split(arr, low, high, comparisonCount);
+
+        // Recursively sort the subarrays
+        quickSort(arr, low, pivotIndex - 1, comparisonCount);
+        quickSort(arr, pivotIndex + 1, high, comparisonCount);
+    }
+}
+\end{lstlisting}
+The Quick Sort algorithm also has two functions that work together in the same "divide and conquer" methodology. The Split function divides the shuffled array in half much like the Merge Sort algorithm, but instead uses a pivot value (determined by the middle element of the array) to compare. The quicksort function calls the split (Line 4) 
+function to get the pivot value and split the arrays. The arrays are then recursively sorted (lines 7-8) by continuously calling the quicksort function until each sub-array only contains one element.
+
+The Quick Sort algorithm's asymptotic running time is $O(nlogn)$. This is because it shares the same divide and conquer method and is able to break down larger data sets into smaller pieces, but with the help of a pivot value which can help further.
+\subsection{Results Table}
+\centering
+\begin{tabularx}{0.8\textwidth} { 
+  | >{\raggedright\arraybackslash}X 
+  | >{\centering\arraybackslash}X 
+  | >{\raggedleft\arraybackslash}X | }
+ \hline
+ Sorting Algorithm & Comparisons & Asymptotic Running Time\\
+ \hline
+ Selection Sort  & 221445 & $On^2$  \\
+ \hline
+ Insertion Sort  & 113,441  & $On^2$  \\
+ \hline
+ Merge Sort  & 5438  & $O(n - nlog_2n$) \\
+ \hline
+ Quick Sort  & 6476  & $nlogn$  \\
+\hline
+\end{tabularx}
+
+
+\footnotesize{Number of Comparisons for Insertion, Merge, and Quick sorts calculated by getting the avg from running the code 10x.}
+\end{document}
