@@ -4,6 +4,9 @@
 #include <fstream>
 #include <string>
 #include <algorithm>
+#include <map>
+#include <vector>
+#include <sstream>
 
 struct Node {
     // each line
@@ -124,13 +127,180 @@ void searchStringsInBST(const std::string& filename, Node* root) {
     }
 }
 
+void readGraphFile(const std::string& filename, Node* root){
+    std::ifstream graphsFile("graphs1.txt");
+    if (!graphsFile.is_open()) {
+        std::cerr << "Failed to open the graphs file." << std::endl;
+        return 1;
+    }
+
+    std::vector<std::string> graphLines;
+    std::string graphLine;
+    while (std::getline(graphsFile, graphLine)) {
+        // Transform and store each line in the vector
+        std::transform(graphLine.begin(), graphLine.end(), graphLine.begin(), ::tolower);
+        graphLine.erase(std::remove_if(graphLine.begin(), graphLine.end(), ::isspace), graphLine.end());
+        graphLines.push_back(graphLine);
+    }
+    graphsFile.close();
+}
+
+class Vertex {
+private:
+    int id;
+    bool processed;
+    std::vector<Vertex*> neighbors;
+
+public:
+    // Constructor
+    Vertex(int identifier) : id(identifier), processed(false) {}
+
+    // Getter for ID
+    int getId() const {
+        return id;
+    }
+
+    // Getter for processed status
+    bool isProcessed() const {
+        return processed;
+    }
+
+    // Setter for processed status
+    void setProcessed(bool status) {
+        processed = status;
+    }
+
+    // Add neighbor
+    void addNeighbor(Vertex* neighbor) {
+        neighbors.push_back(neighbor);
+    }
+
+    // Get neighbors
+    std::vector<Vertex*> getNeighbors() const {
+        return neighbors;
+    }
+};
+
+class Graph {
+private:
+    int numVertices;
+    std::vector<Vertex> vertices;
+    std::vector<std::vector<int>> adjacencyMatrix;
+    std::vector<std::vector<Vertex*>> adjacencyList;
+
+public:
+    // Constructor
+    Graph(int n) : numVertices(n), vertices(n), adjacencyMatrix(n, std::vector<int>(n, 0)), adjacencyList(n) {}
+
+    // Add edge
+    void addEdge(int from, int to) {
+        adjacencyMatrix[from][to] = 1;
+        vertices[from].addNeighbor(&vertices[to]);
+        adjacencyList[from].push_back(&vertices[to]);
+    }
+
+    // Display adjacency matrix
+    void displayAdjacencyMatrix() const {
+        std::cout << "Adjacency Matrix:" << std::endl;
+        for (const auto& row : adjacencyMatrix) {
+            for (int val : row) {
+                std::cout << val << " ";
+            }
+            std::cout << std::endl;
+        }
+    }
+
+    // Display adjacency list
+    void displayAdjacencyList() const {
+        std::cout << "Adjacency List:" << std::endl;
+        for (int i = 0; i < numVertices; ++i) {
+            std::cout << "Vertex " << i << " -> ";
+            for (const Vertex* v : adjacencyList[i]) {
+                std::cout << v->getId() << " ";
+            }
+            std::cout << std::endl;
+        }
+    }
+};
+
+
+void processLines(const std::string& filename, Node* root) {
+    std::ifstream file(filename); // Open the file
+    if (!file.is_open()) {
+        std::cerr << "Unable to open file: " << filename << std::endl;
+        return;
+    }
+
+    std::string line;
+    while (std::getline(file, line)) { // Read lines from the file
+        if (line.empty()) {
+            // do stuff
+        } 
+        else if (line.compare(0, 2, "--") == 0) {
+            // Do nothing because line is a comment
+        } 
+        else if (line.compare(0, 3, "new") == 0) {
+            // do stuff
+        } 
+        else if (line.compare(0, 10, "add vertex") == 0) {
+            // do stuff
+            // Extract the ID from the "add vertex" line
+            std::istringstream iss(line);
+            std::string addVertexStr, idStr;
+            iss >> addVertexStr >> idStr; // Extract "add" and "vertex" strings
+
+            if (idStr.empty()) {
+                std::cout << "Invalid format for adding a vertex: " << line << std::endl;
+            } else {
+                try {
+                    int id = std::stoi(idStr); // Convert the ID string to an integer
+                    // Create a Vertex object with the extracted ID
+                    Vertex* newVertex = new Vertex(id);
+                    // Now you can use the newVertex object as needed (add it to your graph, etc.)
+                    // For example:
+                    // graph.addNode(newVertex);
+                } catch (const std::invalid_argument& e) {
+                    std::cout << "Invalid ID for adding a vertex: " << idStr << std::endl;
+                }
+            }
+        } 
+        else if (line.compare(0, 8, "add edge") == 0) {
+            // do stuff
+            // Extract the IDs from the "add edge" line
+            std::istringstream iss(line);
+            std::string addEdgeStr, sourceStr, destinationStr;
+            iss >> addEdgeStr >> sourceStr >> destinationStr;
+
+            if (sourceStr.empty() || destinationStr.empty()) {
+                std::cout << "Invalid format for adding an edge: " << line << std::endl;
+            } else {
+                try {
+                    int sourceVertexID = std::stoi(sourceStr); // Convert the source ID string to an integer
+                    int destinationVertexID = std::stoi(destinationStr); // Convert the destination ID string to an integer
+
+                    // Add an edge between vertices in theGraph
+                    Graph.addEdge(sourceVertexID, destinationVertexID);
+                } catch (const std::invalid_argument& e) {
+                    std::cout << "Invalid IDs for adding an edge: " << sourceStr << ", " << destinationStr << std::endl;
+                }
+            }
+        } 
+        else {
+            // If this prints then something went wrong
+            std::cout << "Unrecognized line: " << line << std::endl;
+        }
+    }
+    file.close(); // Close the file when done
+}
+
+
 int main() {
     Node* root = nullptr;
-    std::cout << "===============================" <<std::endl;
+    std::cout << "===============================" << std::endl;
     readFileAndInsert("magic_items.txt", root);
-    std::cout << "===============================" <<std::endl;
+    std::cout << "===============================" << std::endl;
     searchStringsInBST("magicitems-find-in-bst.txt", root);
-    std::cout << "===============================" <<std::endl;
+    std::cout << "===============================" << std::endl;
 
     return 0;
 }
