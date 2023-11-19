@@ -89,6 +89,8 @@ void readFileAndInsert(const std::string& filename, Node*& root) {
 
 // function for reading in the new magic items file
 void searchStringsInBST(const std::string& filename, Node* root) {
+    std::cout << "    Searching in BST    " << std::endl;
+    std::cout << "===============================" << std::endl;
     std::ifstream searchFile(filename);
     if (!searchFile.is_open()) {
         std::cerr << "Failed to open the search file." << std::endl;
@@ -207,6 +209,7 @@ std::pair<int, int> findEdgeNumbers(const std::string& input) {
 // function to print the adjacency list of the verticececes
 void printAdjacencyList(const std::vector<Vertex*>& vertices) {
     // spelling adjacency is kinda hard, but so is vertices 
+    std::cout << "===============================" << std::endl;
     std::cout << "Adjacency List:" << std::endl;
     for (const auto& vertex : vertices) {
         std::cout << "[" << vertex->id << "] ";
@@ -243,6 +246,7 @@ void printAdjacencyMatrix(const std::vector<Vertex*>& vertices) {
     }
 
     // Print adjacency matrix
+    std::cout << "===============================" << std::endl;
     std::cout << "Adjacency Matrix:" << std::endl;
     std::cout << " ";
     // I CAN'T GET THEM TO LINE UP PERFECTLY IM SORRY
@@ -279,7 +283,6 @@ void parseLines(const std::string& filename, Node* root) {
             printAdjacencyMatrix(vertices);
             // Clear vertices
             clearVertices(vertices);
-            std::cout << "Vertices cleared" << std::endl;
         }
         // I literally don't know how to use this to create the graph since it comes before everything else
         else if (line.compare(0, 3, "new") == 0) {
@@ -288,7 +291,6 @@ void parseLines(const std::string& filename, Node* root) {
         } 
         else if (line.compare(0, 10, "add vertex") == 0) {
             // do stuff
-            std::cout << "vertex added" << std::endl;
             // Extract the number after "add vertex"... provided by ChatGPT
             std::string numberStr = line.substr(11);
             int vertexNumber = std::stoi(numberStr); // Convert string to integer
@@ -298,7 +300,6 @@ void parseLines(const std::string& filename, Node* root) {
         } 
         else if (line.compare(0, 8, "add edge") == 0) {
             // do stuff
-            std::cout << "edge added" << std::endl;
             // Get the pair of numbers
             std::pair<int, int> edgeNum = findEdgeNumbers(line);
 
@@ -313,6 +314,7 @@ void parseLines(const std::string& filename, Node* root) {
             // I hope this doesn't print
             std::cout << "Error" << std::endl;
         }
+        std::cout << "-----------" << std::endl;
     }
     printAdjacencyList(vertices);
     printAdjacencyMatrix(vertices);
