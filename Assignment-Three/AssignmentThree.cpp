@@ -7,6 +7,7 @@
 #include <map>
 #include <vector>
 #include <sstream>
+#include <cctype>
 
 struct Node {
     // each line
@@ -127,104 +128,73 @@ void searchStringsInBST(const std::string& filename, Node* root) {
     }
 }
 
-void readGraphFile(const std::string& filename, Node* root){
-    std::ifstream graphsFile("graphs1.txt");
-    if (!graphsFile.is_open()) {
-        std::cerr << "Failed to open the graphs file." << std::endl;
-        return 1;
-    }
-
-    std::vector<std::string> graphLines;
-    std::string graphLine;
-    while (std::getline(graphsFile, graphLine)) {
-        // Transform and store each line in the vector
-        std::transform(graphLine.begin(), graphLine.end(), graphLine.begin(), ::tolower);
-        graphLine.erase(std::remove_if(graphLine.begin(), graphLine.end(), ::isspace), graphLine.end());
-        graphLines.push_back(graphLine);
-    }
-    graphsFile.close();
-}
-
-class Vertex {
-private:
+// vertex constructor
+struct Vertex {
     int id;
     bool processed;
     std::vector<Vertex*> neighbors;
 
-public:
-    // Constructor
-    Vertex(int identifier) : id(identifier), processed(false) {}
-
-    // Getter for ID
-    int getId() const {
-        return id;
-    }
-
-    // Getter for processed status
-    bool isProcessed() const {
-        return processed;
-    }
-
-    // Setter for processed status
-    void setProcessed(bool status) {
-        processed = status;
-    }
-
-    // Add neighbor
-    void addNeighbor(Vertex* neighbor) {
-        neighbors.push_back(neighbor);
-    }
-
-    // Get neighbors
-    std::vector<Vertex*> getNeighbors() const {
-        return neighbors;
-    }
+    Vertex(int _id) : id(_id), processed(false) {}
 };
 
-class Graph {
-private:
-    int numVertices;
-    std::vector<Vertex> vertices;
-    std::vector<std::vector<int>> adjacencyMatrix;
-    std::vector<std::vector<Vertex*>> adjacencyList;
+std::vector<Vertex*> vertices; // Vector to store vertices
 
-public:
-    // Constructor
-    Graph(int n) : numVertices(n), vertices(n), adjacencyMatrix(n, std::vector<int>(n, 0)), adjacencyList(n) {}
+// Function to add a vertex
+void addVertex(int& vertexCount) {
+    Vertex* newVertex = new Vertex(vertexCount);
+    vertexCount++; // Increment the vertex count
+    std::cout << "Added vertex with ID: " << newVertex->id << std::endl;
+    vertices.push_back(newVertex); // Add the new vertex to the vector
+}
 
-    // Add edge
-    void addEdge(int from, int to) {
-        adjacencyMatrix[from][to] = 1;
-        vertices[from].addNeighbor(&vertices[to]);
-        adjacencyList[from].push_back(&vertices[to]);
+// Function to add an edge between vertices
+// Partially helped by Stack Overflow
+void addEdge(int vertexId1, int vertexId2) {
+    if (vertexId1 < 0 || vertexId1 >= vertices.size() || vertexId2 < 0 || vertexId2 >= vertices.size()) {
+        std::cerr << "Invalid vertex IDs" << std::endl;
+        return;
     }
 
-    // Display adjacency matrix
-    void displayAdjacencyMatrix() const {
-        std::cout << "Adjacency Matrix:" << std::endl;
-        for (const auto& row : adjacencyMatrix) {
-            for (int val : row) {
-                std::cout << val << " ";
-            }
-            std::cout << std::endl;
-        }
+    // Add vertexId2 to vertexId1's neighbors
+    vertices[vertexId1]->neighbors.push_back(vertices[vertexId2]);
+
+    // Add vertexId1 to vertexId2's neighbors
+    vertices[vertexId2]->neighbors.push_back(vertices[vertexId1]);
+
+    // Output confirming the addition of the edge
+    std::cout << "Edge added between Vertex " << vertexId1 << " and Vertex " << vertexId2 << std::endl;
+}
+
+// Function to find two integers in a string... provided by ChatGPT
+std::pair<int, int> findEdgeNumbers(const std::string& input) {
+    int numberOne = 0;
+    int numberTwo = 0;
+    size_t i = 0;
+
+    while (i < input.size() && !isdigit(input[i])) {
+        i++;
     }
 
-    // Display adjacency list
-    void displayAdjacencyList() const {
-        std::cout << "Adjacency List:" << std::endl;
-        for (int i = 0; i < numVertices; ++i) {
-            std::cout << "Vertex " << i << " -> ";
-            for (const Vertex* v : adjacencyList[i]) {
-                std::cout << v->getId() << " ";
-            }
-            std::cout << std::endl;
-        }
+    while (i < input.size() && isdigit(input[i])) {
+        numberOne = numberOne * 10 + (input[i] - '0');
+        i++;
     }
-};
 
+    while (i < input.size() && !isdigit(input[i])) {
+        i++;
+    }
 
-void processLines(const std::string& filename, Node* root) {
+    while (i < input.size() && isdigit(input[i])) {
+        numberTwo = numberTwo * 10 + (input[i] - '0');
+        i++;
+    }
+
+    return std::make_pair(numberOne, numberTwo);
+}
+
+// function to read and parse lines in file
+// parsing this file has given me the largest headache I've ever had
+void parseLines(const std::string& filename, Node* root) {
     std::ifstream file(filename); // Open the file
     if (!file.is_open()) {
         std::cerr << "Unable to open file: " << filename << std::endl;
@@ -237,57 +207,40 @@ void processLines(const std::string& filename, Node* root) {
             // do stuff
         } 
         else if (line.compare(0, 2, "--") == 0) {
-            // Do nothing because line is a comment
+            // do comment
+            std::cout << "Comment line" << std::endl;
         } 
         else if (line.compare(0, 3, "new") == 0) {
             // do stuff
+            std::cout << "new graph made" << std::endl;
         } 
         else if (line.compare(0, 10, "add vertex") == 0) {
             // do stuff
-            // Extract the ID from the "add vertex" line
-            std::istringstream iss(line);
-            std::string addVertexStr, idStr;
-            iss >> addVertexStr >> idStr; // Extract "add" and "vertex" strings
+            std::cout << "vertex added" << std::endl;
+            // Extract the number after "add vertex"... provided by ChatGPT
+            std::string numberStr = line.substr(11);
+            int vertexNumber = std::stoi(numberStr); // Convert string to integer
+            std::cout << "Vertex added with number: " << vertexNumber << std::endl;
 
-            if (idStr.empty()) {
-                std::cout << "Invalid format for adding a vertex: " << line << std::endl;
-            } else {
-                try {
-                    int id = std::stoi(idStr); // Convert the ID string to an integer
-                    // Create a Vertex object with the extracted ID
-                    Vertex* newVertex = new Vertex(id);
-                    // Now you can use the newVertex object as needed (add it to your graph, etc.)
-                    // For example:
-                    // graph.addNode(newVertex);
-                } catch (const std::invalid_argument& e) {
-                    std::cout << "Invalid ID for adding a vertex: " << idStr << std::endl;
-                }
-            }
+            addVertex(vertexNumber);   
         } 
         else if (line.compare(0, 8, "add edge") == 0) {
             // do stuff
-            // Extract the IDs from the "add edge" line
-            std::istringstream iss(line);
-            std::string addEdgeStr, sourceStr, destinationStr;
-            iss >> addEdgeStr >> sourceStr >> destinationStr;
+            std::cout << "edge added" << std::endl;
+            // Get the pair of numbers
+            std::pair<int, int> edgeNum = findEdgeNumbers(line);
 
-            if (sourceStr.empty() || destinationStr.empty()) {
-                std::cout << "Invalid format for adding an edge: " << line << std::endl;
-            } else {
-                try {
-                    int sourceVertexID = std::stoi(sourceStr); // Convert the source ID string to an integer
-                    int destinationVertexID = std::stoi(destinationStr); // Convert the destination ID string to an integer
+            int vertexId1 = edgeNum.first;
+            int vertexId2 = edgeNum.second;
 
-                    // Add an edge between vertices in theGraph
-                    Graph.addEdge(sourceVertexID, destinationVertexID);
-                } catch (const std::invalid_argument& e) {
-                    std::cout << "Invalid IDs for adding an edge: " << sourceStr << ", " << destinationStr << std::endl;
-                }
-            }
+            std::cout << "Vertex IDs: " << vertexId1 << " and " << vertexId2 << std::endl;
+
+            // Now you can use vertexId1 and vertexId2 as needed
+            addEdge(vertexId1, vertexId2);
         } 
         else {
-            // If this prints then something went wrong
-            std::cout << "Unrecognized line: " << line << std::endl;
+            // I hope this doesn't print
+            std::cout << "Error" << std::endl;
         }
     }
     file.close(); // Close the file when done
@@ -301,7 +254,7 @@ int main() {
     std::cout << "===============================" << std::endl;
     searchStringsInBST("magicitems-find-in-bst.txt", root);
     std::cout << "===============================" << std::endl;
-
+    parseLines("graphs1.txt", root);
     return 0;
 }
 
