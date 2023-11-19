@@ -150,19 +150,31 @@ void addVertex(int& vertexCount) {
 // Function to add an edge between vertices
 // Partially helped by Stack Overflow
 void addEdge(int vertexId1, int vertexId2) {
+    // Adjusting the vertex IDs to match vector indices
+    vertexId1--;
+    vertexId2--;
+
     if (vertexId1 < 0 || vertexId1 >= vertices.size() || vertexId2 < 0 || vertexId2 >= vertices.size()) {
         std::cerr << "Invalid vertex IDs" << std::endl;
         return;
     }
 
-    // Add vertexId2 to vertexId1's neighbors
-    vertices[vertexId1]->neighbors.push_back(vertices[vertexId2]);
+    // Check if the edge already exists before adding
+    bool edgeExists = false;
+    for (const auto& neighbor : vertices[vertexId1]->neighbors) {
+        if (neighbor->id == vertices[vertexId2]->id) {
+            edgeExists = true;
+            break;
+        }
+    }
 
-    // Add vertexId1 to vertexId2's neighbors
-    vertices[vertexId2]->neighbors.push_back(vertices[vertexId1]);
-
-    // Output confirming the addition of the edge
-    std::cout << "Edge added between Vertex " << vertexId1 << " and Vertex " << vertexId2 << std::endl;
+    if (!edgeExists) {
+        vertices[vertexId1]->neighbors.push_back(vertices[vertexId2]);
+        vertices[vertexId2]->neighbors.push_back(vertices[vertexId1]);
+        std::cout << "Edge added between Vertex " << vertexId1 + 1 << " and Vertex " << vertexId2 + 1 << std::endl;
+    } else {
+        std::cout << "Edge between Vertex " << vertexId1 + 1 << " and Vertex " << vertexId2 + 1 << " already exists" << std::endl;
+    }
 }
 
 // Function to find two integers in a string... provided by ChatGPT
@@ -192,6 +204,62 @@ std::pair<int, int> findEdgeNumbers(const std::string& input) {
     return std::make_pair(numberOne, numberTwo);
 }
 
+// function to print the adjacency list of the verticececes
+void printAdjacencyList(const std::vector<Vertex*>& vertices) {
+    // spelling adjacency is kinda hard, but so is vertices 
+    std::cout << "Adjacency List:" << std::endl;
+    for (const auto& vertex : vertices) {
+        std::cout << "[" << vertex->id << "] ";
+        for (const auto& neighbor : vertex->neighbors) {
+            std::cout << neighbor->id << " ";
+        }
+        std::cout << std::endl;
+    }
+}
+
+// Function to clear vertices so they all print
+void clearVertices(std::vector<Vertex*>& vertices) {
+    for (Vertex* vertex : vertices) {
+        delete vertex;
+    }
+    vertices.clear();
+}
+
+// function to print out the matrix
+void printAdjacencyMatrix(const std::vector<Vertex*>& vertices) {
+    // Get the number of vertices
+    int numVertices = vertices.size();
+
+    // Create vector to represent the adjacency matrix
+    std::vector<std::vector<char> > adjacencyMatrix(numVertices, std::vector<char>(numVertices, '.'));
+
+    // Fill the adjacency matrix based on the connections
+    for (int i = 0; i < numVertices; ++i) {
+        for (const auto& neighbor : vertices[i]->neighbors) {
+            int neighborIndex = neighbor->id - 1; // change because of zero-based indexing
+            adjacencyMatrix[i][neighborIndex] = '1';
+        }
+        adjacencyMatrix[i][i] = '.'; // Set diagonal elements to '.'
+    }
+
+    // Print adjacency matrix
+    std::cout << "Adjacency Matrix:" << std::endl;
+    std::cout << " ";
+    // I CAN'T GET THEM TO LINE UP PERFECTLY IM SORRY
+    for (int i = 0; i < numVertices; ++i) {
+        std::cout << "  " << i + 1; // Print column numbahs
+    }
+    std::cout << std::endl;
+
+    for (int i = 0; i < numVertices; ++i) {
+        std::cout << i + 1 << " "; // Print row numbahs
+        for (int j = 0; j < numVertices; ++j) {
+            std::cout << "  " << adjacencyMatrix[i][j]; // Print matrix
+        }
+        std::cout << std::endl;
+    }
+}
+
 // function to read and parse lines in file
 // parsing this file has given me the largest headache I've ever had
 void parseLines(const std::string& filename, Node* root) {
@@ -204,12 +272,16 @@ void parseLines(const std::string& filename, Node* root) {
     std::string line;
     while (std::getline(file, line)) { // Read lines from the file
         if (line.empty()) {
-            // do stuff
+            // do nothing i suppose
         } 
         else if (line.compare(0, 2, "--") == 0) {
-            // do comment
-            std::cout << "Comment line" << std::endl;
-        } 
+            printAdjacencyList(vertices);
+            printAdjacencyMatrix(vertices);
+            // Clear vertices
+            clearVertices(vertices);
+            std::cout << "Vertices cleared" << std::endl;
+        }
+        // I literally don't know how to use this to create the graph since it comes before everything else
         else if (line.compare(0, 3, "new") == 0) {
             // do stuff
             std::cout << "new graph made" << std::endl;
@@ -235,7 +307,6 @@ void parseLines(const std::string& filename, Node* root) {
 
             std::cout << "Vertex IDs: " << vertexId1 << " and " << vertexId2 << std::endl;
 
-            // Now you can use vertexId1 and vertexId2 as needed
             addEdge(vertexId1, vertexId2);
         } 
         else {
@@ -243,10 +314,12 @@ void parseLines(const std::string& filename, Node* root) {
             std::cout << "Error" << std::endl;
         }
     }
-    file.close(); // Close the file when done
+    printAdjacencyList(vertices);
+    printAdjacencyMatrix(vertices);
+    file.close();
 }
 
-
+// the terminal output is super messy I know and I'm sorry
 int main() {
     Node* root = nullptr;
     std::cout << "===============================" << std::endl;
