@@ -1,3 +1,4 @@
+//  𝞢𝞣𝑯𝞓𝞜
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -5,10 +6,16 @@
 #include <string>
 
 
-// constructs the knapsack object
+
+
+
+/// KNAPSACK PORTION OF CODE BELOW ///
+
+// constructs the knapsack object 🎒
 struct Knapsack {
     int knapsackNumber;
     int capacity;
+    double totalValue;
 };
 
 // construction of the spice object 
@@ -19,7 +26,20 @@ struct Spice {
     double price_per_unit;
 };
 
-// function to open the spice file and parse it (Parsing helped by ChatGPT)
+// Insertion Sort Function for spices based on price per unit in descending order
+void insertionSort(std::vector<Spice>& spices) {
+    for (size_t i = 1; i < spices.size(); ++i) {
+        Spice valueToInsert = spices[i];
+        int j = i - 1;
+        while (j >= 0 && spices[j].price_per_unit < valueToInsert.price_per_unit) {
+            spices[j + 1] = spices[j];
+            j = j - 1;
+        }
+        spices[j + 1] = valueToInsert;
+    }
+}
+
+// Function to open the spice file and parse it (Parsing helped by ChatGPT 🤖)
 void parseSpice(const std::string& filename, std::vector<Spice>& spices, std::vector<Knapsack>& knapsacks) {
     std::ifstream file(filename);
     if (!file.is_open()) {
@@ -90,30 +110,57 @@ void parseSpice(const std::string& filename, std::vector<Spice>& spices, std::ve
     file.close();
 }
 
-// main function
 int main() {
     std::vector<Spice> spices;
     std::vector<Knapsack> knapsacks;
-    parseSpice("spice2.txt", spices, knapsacks);
+    parseSpice("spice.txt", spices, knapsacks);
 
-    // printing spices for testing (using spice2.txt for personal testing)
-    std::cout << "Spices Information:" << std::endl;
+    insertionSort(spices); // Sort spices based on price per unit
+
+    int totalQuantity = 0; // Total available quantity of spices
+
+    // Calculate the total quantity of available spices
     for (size_t i = 0; i < spices.size(); ++i) {
         const Spice& spice = spices[i];
-        std::cout << "Spice Name: " << spice.name << std::endl;
-        std::cout << "Total Price: " << spice.total_price << std::endl;
-        std::cout << "Quantity: " << spice.qty << std::endl;
-        std::cout << "Price per Unit: " << std::fixed << std::setprecision(2) << spice.price_per_unit << std::endl;
-        std::cout << "------------------" << std::endl;
+        totalQuantity += spice.qty;
     }
 
-    // printing knapsacks for testing (using spice2.txt for personal testing)
-    std::cout << "Knapsacks Information:" << std::endl;
     for (size_t i = 0; i < knapsacks.size(); ++i) {
-        const Knapsack& knapsack = knapsacks[i];
-        std::cout << "Knapsack Number: " << knapsack.knapsackNumber << std::endl;
-        std::cout << "Capacity: " << knapsack.capacity << std::endl;
-        std::cout << "------------------" << std::endl;
+        Knapsack& knapsack = knapsacks[i];
+        std::cout << "Knapsack of capacity " << knapsack.capacity << " is worth ";
+
+        int remainingCapacity = knapsack.capacity;
+        std::vector<std::string> contents;
+        std::vector<Spice> availableSpices = spices; // Create a copy for this knapsack
+
+        // Loop through le spices and fill the current knapsack
+        for (size_t j = 0; j < availableSpices.size(); ++j) {
+            Spice& spice = availableSpices[j];
+
+            while (remainingCapacity > 0 && spice.qty > 0) {
+                if (spice.qty <= remainingCapacity) {
+                    contents.push_back(std::to_string(spice.qty) + " scoops of " + spice.name);
+                    remainingCapacity -= spice.qty;
+                    knapsack.totalValue += spice.total_price;
+                    spice.qty = 0; // All scoops used for this knapsack
+                } else {
+                    contents.push_back(std::to_string(remainingCapacity) + " scoops of " + spice.name);
+                    spice.qty -= remainingCapacity;
+                    knapsack.totalValue += remainingCapacity * spice.price_per_unit;
+                    remainingCapacity = 0; // Knapsack filled to capacity for this knapsack
+                }
+            }
+        }
+
+        // Output knapsack contents and total value 
+        std::cout << knapsack.totalValue << " quatloos and contains ";
+        for (size_t j = 0; j < contents.size(); ++j) {
+            std::cout << contents[j];
+            if (j != contents.size() - 1) {
+                std::cout << " and ";
+            }
+        }
+        std::cout << "." << std::endl;
     }
 
     return 0;

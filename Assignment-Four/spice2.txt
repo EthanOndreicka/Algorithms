@@ -14,3 +14,5 @@ knapsack capacity =  6;
 knapsack capacity = 10;
 knapsack capacity = 20;
 knapsack capacity = 21;
+knapsack capacity = 18;
+knapsack capacity = 64;
