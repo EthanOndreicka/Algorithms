@@ -1,10 +1,16 @@
 //  𝞢𝞣𝑯𝞓𝞜
+
+// I don't know if my brain isn't working but I can't get each graph to print individually
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <limits>
+
+// SSSP CODE DOWN BELOW 🚙
 
 // contructs each vertex
 struct Vertex {
@@ -12,8 +18,11 @@ struct Vertex {
     bool processed;
     std::vector<Vertex*> neighbors;
     std::vector<int> weights;
-    Vertex(int _id) : id(_id), processed(false) {}
+    long long distance; //  store distance for Bellman-Ford
+    Vertex* predecessor; // store predecessor for path reconstruction
+    Vertex(int _id) : id(_id), processed(false), distance(std::numeric_limits<int>::max()), predecessor(nullptr) {}
 };
+
 
 // creates the graph class
 class Graph {
@@ -26,37 +35,81 @@ public:
         }
     }
 
+    // adds edge between vertices w/ weights
     void addEdge(int src, int dest, int weight) {
-        // Ensure vertices exist
         if (vertices.find(src) == vertices.end() || vertices.find(dest) == vertices.end()) {
             std::cerr << "Vertices not found for edge addition." << std::endl;
             return;
         }
 
-        // Update neighbors and weights
         vertices[src]->neighbors.push_back(vertices[dest]);
         vertices[src]->weights.push_back(weight);
     }
-
-    void displayGraph() {
-        for (const auto& vertexPair : vertices) {
-            std::cout << "Vertex " << vertexPair.second->id << " Neighbors: ";
-            for (size_t i = 0; i < vertexPair.second->neighbors.size(); ++i) {
-                std::cout << vertexPair.second->neighbors[i]->id << " (Weight: "
-                          << vertexPair.second->weights[i] << ") ";
-            }
-            std::cout << std::endl;
-        }
-    }
-
-    ~Graph() {
-        for (auto& vertexPair : vertices) {
-            delete vertexPair.second;
+    // clear graph for next one
+    void clearVertices() {
+        for (std::unordered_map<int, Vertex*>::iterator it = vertices.begin(); it != vertices.end(); ++it) {
+            delete it->second;
         }
         vertices.clear();
     }
+
+    void initializeSingleSource(Vertex* source) {
+        for (std::unordered_map<int, Vertex*>::iterator it = vertices.begin(); it != vertices.end(); ++it) {
+            it->second->distance = std::numeric_limits<int>::max();
+            it->second->predecessor = nullptr;
+        }
+        source->distance = 0;
+    }
+
+    // relaxxxxxxxxxxxxxxx
+    void relax(Vertex* u, Vertex* v, int weight) {
+        if (v->distance > static_cast<long long>(u->distance) + weight) {
+            v->distance = static_cast<long long>(u->distance) + weight;
+            v->predecessor = u;
+        }
+    }
+
+    void bellmanFord(Vertex* source, int maxIterations) {
+        initializeSingleSource(source);
+
+        for (size_t i = 0; i < maxIterations; ++i) {
+            for (std::unordered_map<int, Vertex*>::iterator it = vertices.begin(); it != vertices.end(); ++it) {
+                Vertex* u = it->second;
+                for (size_t j = 0; j < u->neighbors.size(); ++j) {
+                    relax(u, u->neighbors[j], u->weights[j]);
+                }
+            }
+        }
+    }
+
+    void printShortestPaths(Vertex* source) {
+        for (std::unordered_map<int, Vertex*>::iterator it = vertices.begin(); it != vertices.end(); ++it) {
+            if (it->second != source) {
+                std::cout << "Path from " << source->id << " to " << it->second->id << " cost is "
+                        << it->second->distance << " path is ";
+                printPath(source, it->second);
+                std::cout << std::endl;
+            }
+        }
+    }
+
+    // prints the path taken for the shortest path
+    void printPath(Vertex* source, Vertex* dest) {
+        if (dest == source) {
+            std::cout << source->id;
+            return;
+        } else if (dest->predecessor == nullptr) {
+            std::cout << "No path from " << source->id << " to " << dest->id << " exists.";
+            return;
+        } else {
+            printPath(source, dest->predecessor);
+            std::cout << " -> " << dest->id;
+        }
+    }
+    
 };
 
+// file reader for the graphs2.txt
 void parseInputFile(const std::string& filename, Graph& graph) {
     std::ifstream inputFile(filename);
     if (!inputFile.is_open()) {
@@ -65,8 +118,19 @@ void parseInputFile(const std::string& filename, Graph& graph) {
     }
 
     std::string line;
+    bool newGraph = true; // Flag to indicate a new graph
     while (std::getline(inputFile, line)) {
-        if (line.substr(0, 2) != "--") {
+        if (line.empty() || line.substr(0, 2) == "--") {
+            newGraph = true; // Indicates a new graph
+            continue;
+        }
+
+        if (newGraph) {
+            graph.clearVertices(); // Clear existing graph data for the new graph
+            newGraph = false; // Reset flag
+        }
+
+        if (line.substr(0, 3) == "add") {
             std::istringstream iss(line);
             std::string command;
             iss >> command;
@@ -91,6 +155,9 @@ void parseInputFile(const std::string& filename, Graph& graph) {
 
     inputFile.close();
 }
+
+
+
 
 
 
@@ -196,6 +263,20 @@ void parseSpice(const std::string& filename, std::vector<Spice>& spices, std::ve
 }
 
 int main() {
+    std::cout << "===============================================================" << std::endl;
+    std::cout << "==================== Bellman-Ford SSSP ========================" << std::endl;
+    std::cout << "===============================================================" << std::endl;
+    Graph graph;
+    parseInputFile("graphs2.txt", graph);
+    // Run Bellman-Ford algorithm from vertex 1
+    Vertex* source = graph.vertices[1];
+    graph.bellmanFord(source, 100);
+
+    // Print shortest paths from vertex 1 to all other vertices
+    graph.printShortestPaths(source);
+    std::cout << "===============================================================" << std::endl;
+    std::cout << "===================== Fractional Knapsack =====================" << std::endl;
+    std::cout << "===============================================================" << std::endl;
     std::vector<Spice> spices;
     std::vector<Knapsack> knapsacks;
     parseSpice("spice.txt", spices, knapsacks);
@@ -247,12 +328,8 @@ int main() {
         }
         std::cout << "." << std::endl;
     }
-
-    Graph graph;
-    parseInputFile("graphs3.txt", graph);
-    // Display the graph
-    graph.displayGraph();
-
+    std::cout << "===============================================================" << std::endl;
+    
 
     return 0;
 }
