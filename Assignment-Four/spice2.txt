@@ -1,4 +1,4 @@
--- She who controls the spice controls the universe.
+-- My own spice text file for testing purposes
 
 -- Available spice to take
 spice name = red;    total_price =  4.0;  qty = 4;
