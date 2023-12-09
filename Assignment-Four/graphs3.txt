@@ -1,0 +1,17 @@
+-- CLRS and class example 
+new graph
+add vertex 1
+add vertex 2
+add vertex 3
+add vertex 4
+add vertex 5
+add edge 2 - 3  5
+add edge 2 - 4  8
+add edge 2 - 5 -4
+add edge 3 - 2 -2
+add edge 4 - 3 -3
+add edge 4 - 5  9
+add edge 5 - 3  7
+add edge 5 - 1  2
+add edge 1 - 2  6
+add edge 1 - 4  7

@@ -4,8 +4,93 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <unordered_map>
 
+// contructs each vertex
+struct Vertex {
+    int id;
+    bool processed;
+    std::vector<Vertex*> neighbors;
+    std::vector<int> weights;
+    Vertex(int _id) : id(_id), processed(false) {}
+};
 
+// creates the graph class
+class Graph {
+public:
+    std::unordered_map<int, Vertex*> vertices;
+
+    void addVertex(int id) {
+        if (vertices.find(id) == vertices.end()) {
+            vertices[id] = new Vertex(id);
+        }
+    }
+
+    void addEdge(int src, int dest, int weight) {
+        // Ensure vertices exist
+        if (vertices.find(src) == vertices.end() || vertices.find(dest) == vertices.end()) {
+            std::cerr << "Vertices not found for edge addition." << std::endl;
+            return;
+        }
+
+        // Update neighbors and weights
+        vertices[src]->neighbors.push_back(vertices[dest]);
+        vertices[src]->weights.push_back(weight);
+    }
+
+    void displayGraph() {
+        for (const auto& vertexPair : vertices) {
+            std::cout << "Vertex " << vertexPair.second->id << " Neighbors: ";
+            for (size_t i = 0; i < vertexPair.second->neighbors.size(); ++i) {
+                std::cout << vertexPair.second->neighbors[i]->id << " (Weight: "
+                          << vertexPair.second->weights[i] << ") ";
+            }
+            std::cout << std::endl;
+        }
+    }
+
+    ~Graph() {
+        for (auto& vertexPair : vertices) {
+            delete vertexPair.second;
+        }
+        vertices.clear();
+    }
+};
+
+void parseInputFile(const std::string& filename, Graph& graph) {
+    std::ifstream inputFile(filename);
+    if (!inputFile.is_open()) {
+        std::cerr << "Error opening file." << std::endl;
+        return;
+    }
+
+    std::string line;
+    while (std::getline(inputFile, line)) {
+        if (line.substr(0, 2) != "--") {
+            std::istringstream iss(line);
+            std::string command;
+            iss >> command;
+
+            if (command == "add") {
+                std::string subcommand;
+                iss >> subcommand;
+
+                if (subcommand == "vertex") {
+                    int vertexId;
+                    iss >> vertexId;
+                    graph.addVertex(vertexId);
+                } else if (subcommand == "edge") {
+                    int src, dest, weight;
+                    char dash;
+                    iss >> src >> dash >> dest >> weight;
+                    graph.addEdge(src, dest, weight);
+                }
+            }
+        }
+    }
+
+    inputFile.close();
+}
 
 
 
@@ -162,6 +247,12 @@ int main() {
         }
         std::cout << "." << std::endl;
     }
+
+    Graph graph;
+    parseInputFile("graphs3.txt", graph);
+    // Display the graph
+    graph.displayGraph();
+
 
     return 0;
 }
